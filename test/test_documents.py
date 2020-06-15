@@ -22,4 +22,11 @@ class Document_Test(unittest.TestCase):
         self.assertIn(test_shelf, new_paper)
         self.assertNotIn('Ошибка', new_paper)
 
+    def test_negative_owner(self, test_value = '!@#$%^&*()'):
+        ownership = document.document_owner(test_value)
+        self.assertIn('Ошибка', ownership)
+
+    def test_negative_deletion(self, test_value = '23489987654'):
+        self.assertIn('Ошибка', document.doc_delete(test_value))
+
 
