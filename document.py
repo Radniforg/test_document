@@ -1,5 +1,3 @@
-from doc.logger_script import logger
-
 documents = [{
     "type": "passport",
     "number": "2207 876234",
@@ -20,87 +18,100 @@ directories = {
     '3': []
 }
 
-@logger('log/')
-def document_owner():
-    document_number = input('Пожалуйста, введите номер документа\n')
+
+def document_owner(user_input = None):
+    if user_input is None:
+        document_number = input('Пожалуйста, введите номер документа\n')
+    else:
+        document_number = user_input
     for docs in documents:
         if docs["number"] == document_number:
-          print(docs["name"])
-          return None
-    print("Ошибка: документ с заданным номером не найден")
+          return docs['name']
+    return "Ошибка: документ с заданным номером не найден"
 
-@logger('log/')
+
 def list_command():
     line = ''
     for docs in documents:
         line = line + f'{docs["type"]} "{docs["number"]}" "{docs["name"]}"\n'
     if line != '':
-      print(line)
-      return None
+      return line
     else:
-      print('Ошибка: документы не обнаружены')
+      return 'Ошибка: документы не обнаружены'
 
 
-@logger('log/')
 def shelf_list():
     second_line = ''
     for keys, values in directories.items():
         second_line = second_line + f'Полка №{keys} - {values}\n'
     if second_line != '':
-      print(second_line)
-      return None
+      return second_line
     else:
-      print('Ошибка: полки не заданы')
+      return 'Ошибка: полки не заданы'
 
 
-@logger('log/')
-def what_shelf():
-    document_number = input('Пожалуйста, введите номер документа\n')
+def what_shelf(user_input = None):
+    if user_input is None:
+        document_number = input('Пожалуйста, введите номер документа\n')
+    else:
+        document_number = user_input
     for keys, values in directories.items():
       for doc_number in values:
         if doc_number == document_number:
-          print(f'Номер полки - {keys}')
-          return None
-    print('Ошибка: документ с заданным номером не найден')
+          return f'Номер полки - {keys}'
+    return 'Ошибка: документ с заданным номером не найден'
 
 
-@logger('log/')
-def add_document():
-  doc_type = input('Пожалуйста, введите тип нового документа\n')
-  document_number = input('Пожалуйста, введите номер нового документа\n')
-  owner_name = input('Пожалуйста, введите имя владельца нового документа\n')
-  for docs in documents:
-      if  docs['type'] == doc_type and docs["number"] == document_number and docs["name"] == owner_name:
-        print('Ошибка: данный документ уже существует')
-        return None
-  new_document = {}
-  new_document['type'] = doc_type
-  new_document['number'] = document_number
-  new_document['name'] = owner_name
-  shelf_number = input('Пожалуйста, введите полки с новым документом\n')
-  if directories.get(shelf_number, 'Error') != 'Error':
-    documents.append(new_document)
-    directories[shelf_number].append(document_number)
-    list_command()
-    shelf_list()
-    return None
-  print('Ошибка: заданная полка не существует')
+def add_document(type = None, number = None, owner = None, appointed_shelf = None):
+    if type is None:
+        doc_type = input('Пожалуйста, введите тип нового документа\n')
+    else:
+        doc_type = type
+    if number is None:
+        document_number = input('Пожалуйста, введите номер нового документа\n')
+    else:
+        document_number = number
+    if owner is None:
+        owner_name = input('Пожалуйста, введите имя владельца нового документа\n')
+    else:
+        owner_name = owner
+    for docs in documents:
+        if  docs['type'] == doc_type and docs["number"] == document_number and docs["name"] == owner_name:
+            return 'Ошибка: данный документ уже существует'
+    new_document = {}
+    new_document['type'] = doc_type
+    new_document['number'] = document_number
+    new_document['name'] = owner_name
+    if appointed_shelf is None:
+        shelf_number = input('Пожалуйста, введите полки с новым документом\n')
+    else:
+        shelf_number = appointed_shelf
+    if directories.get(shelf_number, 'Error') != 'Error':
+        documents.append(new_document)
+        directories[shelf_number].append(document_number)
+        list_command()
+        shelf_list()
+        return f'{list_command()}\n{shelf_list()}'
+    return 'Ошибка: заданная полка не существует'
 
 
-@logger('log/')
-def add_shelf():
-    shelf = input('Пожалуйста, введите номер новой полки\n')
+def add_shelf(shelf_number = None):
+    if shelf_number is None:
+        shelf = input('Пожалуйста, введите номер новой полки\n')
+    else:
+        shelf = shelf_number
     if directories.get(shelf, 'Clear') != 'Clear':
-      print('Ошибка: заданная полка уже существует')
-      return None
+      return 'Ошибка: заданная полка уже существует'
     directories[shelf] = []
-    shelf_list()
+    return shelf_list()
 
 
-@logger('log/')
-def doc_delete():
+def doc_delete(doc_number = None):
     variable_check=0
-    document_number = input('Пожалуйста, введите номер документа\n')
+    if doc_number is None:
+        document_number = input('Пожалуйста, введите номер документа\n')
+    else:
+        document_number = doc_number
     for docs in documents:
         if docs["number"] == document_number:
             del (documents[documents.index(docs)])
@@ -111,18 +122,20 @@ def doc_delete():
               del (shelf_content[shelf_content.index(document_number)])
               variable_check = 1
     if variable_check == 0:
-      print('Ошибка: документ на удаление не найден')
-      return None
-    list_command()
-    shelf_list()
+      return 'Ошибка: документ на удаление не найден'
+    return f'{list_command()}\n{shelf_list()}'
 
 
-
-@logger('log/')
-def doc_move():
+def doc_move(doc_number = None, shelf_number = None):
     variable_check=0
-    document_number = input('Пожалуйста, введите номер документа\n')
-    final_shelf = input('Пожалуйста, введите номер новой полки\n')
+    if doc_number is None:
+        document_number = input('Пожалуйста, введите номер документа\n')
+    else:
+        document_number = doc_number
+    if shelf_number is None:
+        final_shelf = input('Пожалуйста, введите номер новой полки\n')
+    else:
+        final_shelf = shelf_number
     if directories.get(final_shelf, 'Clear') != 'Clear':
       for shelf_number, shelf_content in directories.items():
         if variable_check == 2:
@@ -140,18 +153,14 @@ def doc_move():
     else:
       variable_check = 3
     if variable_check == 0:
-      print('Ошибка: документ на перемещение не найден')
-      return None
+      return 'Ошибка: документ на перемещение не найден'
     elif variable_check == 2:
-      print('Ошибка: нельзя переместить на ту же самую полку')
-      return None
+      return 'Ошибка: нельзя переместить на ту же самую полку'
     elif variable_check == 3:
-      print('Ошибка: заданная полка не существует')
-      return None
-    shelf_list()
+      return 'Ошибка: заданная полка не существует'
+    return shelf_list()
 
 
-@logger('log/')
 def owners():
   document_list = []
   for document in directories.values():
@@ -161,28 +170,28 @@ def owners():
     for docs in documents:
       if docs["number"] == document_number:
         try:
-          print(f'Владелец документа номер {docs["number"]} - {docs["name"]}')
+          return f'Владелец документа номер {docs["number"]} - {docs["name"]}'
         except KeyError:
-          print('Ошибка: у документа отсутствует владелец')
+          return 'Ошибка: у документа отсутствует владелец'
 
+if __name__ == '__main__':
+    user_command = input('Пожалуйста, введите пользовательскую команду\n')
 
-user_command = input('Пожалуйста, введите пользовательскую команду\n')
-
-if user_command.lower() == 'p':
-  document_owner()
-elif user_command.lower() == 'l':
-  list_command()
-elif user_command.lower() == 's':
-  what_shelf()
-elif user_command.lower() == 'a':
-  add_document()
-elif user_command.lower() == 'd':
-  doc_delete()
-elif user_command.lower() == 'm':
-  doc_move()
-elif user_command.lower() == 'as':
-  add_shelf()
-elif user_command.lower() == 'n':
-  owners()
-else:
-  print('Ошибка: Пользовательская команда не найдена')
+    if user_command.lower() == 'p':
+        print(document_owner())
+    elif user_command.lower() == 'l':
+        print(list_command())
+    elif user_command.lower() == 's':
+        print(what_shelf())
+    elif user_command.lower() == 'a':
+        print(add_document())
+    elif user_command.lower() == 'd':
+        print(doc_delete())
+    elif user_command.lower() == 'm':
+        print(doc_move())
+    elif user_command.lower() == 'as':
+        print(add_shelf())
+    elif user_command.lower() == 'n':
+        print(owners())
+    else:
+        print('Ошибка: Пользовательская команда не найдена')
